@@ -1,0 +1,36 @@
+# CleanGo
+
+> CleanGo adalah layanan laundry online dengan antar-jemput di Kota Madiun, Jawa Timur. Pelanggan memesan lewat situs, kurir menjemput dan menimbang cucian, lalu status cucian dapat dipantau dari telah diambil sampai selesai.
+
+## Layanan
+- Laundry kiloan: cuci, kering, dan lipat. Selesai 2 hari.
+- Cuci dan setrika: cuci, setrika, dan kemas. Selesai 2 hari.
+- Laundry express: selesai 6 jam setelah cucian ditimbang.
+- Laundry satuan: dicuci per potong, misalnya kemeja, celana, atau jaket.
+
+## Harga (indikatif, dapat berubah)
+- Laundry kiloan: Rp7.000 per kg
+- Cuci dan setrika: Rp9.000 per kg
+- Laundry express: Rp13.000 per kg
+- Laundry satuan: Rp8.000 per potong
+
+## Biaya dan promo
+- Biaya antar-jemput Rp5.000 per pesanan, gratis untuk pesanan di atas Rp50.000.
+- Kode CLEANGO10 memberikan diskon 10% untuk pesanan pertama, berlaku untuk semua layanan.
+- Pembayaran: tunai saat antar, transfer bank, atau QRIS.
+
+## Kontak dan lokasi
+- Alamat: Jl. Pahlawan No. 03, Madiun, Jawa Timur
+- WhatsApp: 0857-1042-3097
+- Instagram: @itscleango.laundry
+
+## Halaman
+- [Beranda](https://cleango.id/): layanan, harga, cara pemesanan, dan FAQ
+- [Kebijakan Privasi](https://cleango.id/privasi.html)
+- [Syarat dan Ketentuan](https://cleango.id/syarat.html)
+
+## FAQ
+- Berapa lama laundry selesai? Reguler 2 hari, express 6 jam setelah cucian ditimbang.
+- Bagaimana cara membayar? Tunai saat antar, transfer bank, atau QRIS (simulasi pada versi demo).
+- Berapa biaya antar-jemput? Rp5.000 per pesanan, dan gratis untuk pesanan di atas Rp50.000.
+- Ada promo untuk pesanan pertama? Ya. Masukkan kode CLEANGO10 saat checkout untuk diskon 10% yang berlaku untuk semua layanan.

@@ -9,7 +9,7 @@ Website layanan laundry online dengan antar-jemput di Kota Madiun, Jawa Timur.
 - `privasi.html`, `syarat.html`: halaman kebijakan privasi dan syarat ketentuan
 - `assets/`: gambar website
 - `robots.txt`, `sitemap.xml`, `llms.txt`: file untuk mesin pencari dan AI
-- `vercel.json`: header keamanan
+- `_headers`: header keamanan untuk Netlify (Content-Security-Policy, HSTS, dan lainnya)
 
 ## Catatan
 - Ganti `KODE_GSC` di `index.html` dengan kode verifikasi Google Search Console.
