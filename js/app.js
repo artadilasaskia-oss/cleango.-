@@ -333,18 +333,18 @@ function renderOwner(){
   <div class="panel tw"><h3>Uang keluar – ${esc(mLabel(m))}</h3>${out.length?`<table><tr><th>Tanggal</th><th>Kategori</th><th>Keterangan</th><th class="r">Jumlah</th><th></th></tr>${[...out].sort((a,b)=>String(b.date).localeCompare(String(a.date))).map(e=>`<tr><td>${dLabel(e.date)}</td><td>${esc(e.cat)}</td><td>${esc(e.note)||'-'}</td><td class="r">${rp(e.amt)}</td><td><button class="btn sm alt" data-del="${esc(e.id)}">Hapus</button></td></tr>`).join('')}<tr><th colspan="3">Total uang keluar</th><th class="r fin-out">${rp(tout)}</th><th></th></tr></table>`:'<p>Belum ada pengeluaran pada bulan ini. Catat belanja sabun, parfum, listrik, air, plastik, gaji, servis dan bensin motor kurir lewat formulir di atas.</p>'}</div>`;
  }
  $('#ownerBox').innerHTML=`<div class="ttl"><h2>Laporan keuangan</h2><p>${esc(mLabel(m))} · uang masuk dari pesanan laundry, uang keluar dari belanja dan biaya bulanan.</p></div>
-  <div class="tools"><div><label for="om">Bulan</label><input id="om" type="month" value="${m}"></div><button class="btn sm alt" id="oCsv">Unduh CSV</button><button class="btn sm alt" id="oPrint">Cetak</button></div>
+  <div class="tools"><div><label for="om">Bulan</label><input id="om" type="month" value="${m}"></div><button class="btn sm alt" id="oCsv">Unduh Excel</button><button class="btn sm alt" id="oPrint">Cetak</button></div>
   <div class="tabs">${T.map(t=>`<button data-otab="${t[0]}" class="${t[0]===otab?'on':''}">${t[1]}</button>`).join('')}</div>${body}`;
  $('#om').onchange=e=>{if(/^\d{4}-\d{2}$/.test(e.target.value)){ownerMonth=e.target.value;renderOwner()}};
  $$('[data-otab]').forEach(b=>b.onclick=()=>{otab=b.dataset.otab;renderOwner()});
  $('#oPrint').onclick=()=>window.print();
  $('#oCsv').onclick=()=>{
-  const q=v=>{let x=String(v??'');if(typeof v==='string'&&/^[=+\-@]/.test(x))x="'"+x;return '"'+x.replace(/"/g,'""')+'"'},rows=[['Tipe','Tanggal','Kategori / Layanan','Keterangan','Jumlah']];
+  const rows=[['Tipe','Tanggal','Kategori / Layanan','Keterangan','Jumlah']];
   inc.forEach(o=>rows.push(['Masuk',doneAt(o).slice(0,10),o.sname,o.id+' - '+o.name,calc(o).total]));
   out.forEach(e=>rows.push(['Keluar',e.date,e.cat,e.note,e.amt]));
   rows.push([],['','','','Uang masuk',tin],['','','','Uang keluar',tout],['','','','Laba bersih',net]);
-  const blob=new Blob(['\ufeff'+rows.map(r=>r.map(q).join(',')).join('\r\n')],{type:'text/csv;charset=utf-8'}),a=document.createElement('a');
-  a.href=URL.createObjectURL(blob);a.download='laporan-keuangan-'+m+'.csv';document.body.appendChild(a);a.click();a.remove();setTimeout(()=>URL.revokeObjectURL(a.href),1000)};
+  const blob=xlsxBlob(rows,'Laporan '+m),a=document.createElement('a');
+  a.href=URL.createObjectURL(blob);a.download='laporan-keuangan-'+m+'.xlsx';document.body.appendChild(a);a.click();a.remove();setTimeout(()=>URL.revokeObjectURL(a.href),1000)};
  const ef=$('#ef');if(ef)ef.onsubmit=e=>{e.preventDefault();const amt=Math.round(+$('#ea').value);if(!(amt>0))return toast('Isi jumlah pengeluaran.');
   const a=expenses();a.push({id:'x'+Date.now()+Math.floor(Math.random()*1e6),date:$('#ed').value,cat:$('#ec').value,note:$('#en').value.trim(),amt});db.set('expenses',a);toast('Pengeluaran dicatat.');renderOwner()};
  $$('[data-del]').forEach(b=>b.onclick=()=>{if(!confirm('Hapus catatan ini?'))return;db.set('expenses',expenses().filter(x=>x.id!==b.dataset.del));toast('Catatan dihapus.');renderOwner()});
@@ -541,3 +541,62 @@ document.addEventListener('input',e=>{const t=e.target;if(t.matches&&t.matches('
  ov.addEventListener('click',hide);
  setTimeout(hide,3000);
 })();
+
+/* ---------- ekspor laporan ke Excel (.xlsx), tanpa library luar ---------- */
+const XL_CRC=(()=>{const t=new Uint32Array(256);for(let n=0;n<256;n++){let c=n;for(let k=0;k<8;k++)c=c&1?0xEDB88320^(c>>>1):c>>>1;t[n]=c>>>0}return t})();
+function xlCrc(b){let c=0xFFFFFFFF;for(let i=0;i<b.length;i++)c=XL_CRC[(c^b[i])&255]^(c>>>8);return (c^0xFFFFFFFF)>>>0}
+function xlEsc(s){return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;')}
+function xlCol(i){let s='';i++;while(i>0){const m=(i-1)%26;s=String.fromCharCode(65+m)+s;i=Math.floor((i-1)/26)}return s}
+function xlSheet(rows){
+ const data=rows.map((r,ri)=>{
+  const cells=r.map((v,ci)=>{
+   const ref=xlCol(ci)+(ri+1);
+   if(typeof v==='number'&&isFinite(v))return `<c r="${ref}"><v>${v}</v></c>`;
+   if(v===''||v==null)return '';
+   return `<c r="${ref}" t="inlineStr"><is><t xml:space="preserve">${xlEsc(v)}</t></is></c>`;
+  }).join('');
+  return `<row r="${ri+1}">${cells}</row>`;
+ }).join('');
+ const widths=[12,14,26,34,16].map((w,i)=>`<col min="${i+1}" max="${i+1}" width="${w}" customWidth="1"/>`).join('');
+ return `<?xml version="1.0" encoding="UTF-8" standalone="yes"?><worksheet xmlns="http://schemas.openxmlformats.org/spreadsheetml/2006/main"><cols>${widths}</cols><sheetData>${data}</sheetData></worksheet>`;
+}
+function xlZip(files){
+ const u16=v=>[v&255,(v>>>8)&255],u32=v=>[v&255,(v>>>8)&255,(v>>>16)&255,(v>>>24)&255];
+ const enc=new TextEncoder(),chunks=[],central=[];let offset=0;
+ for(const f of files){
+  const name=enc.encode(f.name),crc=xlCrc(f.data),size=f.data.length;
+  const local=new Uint8Array([...u32(0x04034b50),...u16(20),...u16(0),...u16(0),...u16(0),...u16(33),...u32(crc),...u32(size),...u32(size),...u16(name.length),...u16(0)]);
+  chunks.push(local,name,f.data);
+  central.push({name,crc,size,offset});
+  offset+=local.length+name.length+size;
+ }
+ const cdStart=offset;let cdSize=0;const cdParts=[];
+ for(const c of central){
+  const h=new Uint8Array([...u32(0x02014b50),...u16(20),...u16(20),...u16(0),...u16(0),...u16(0),...u16(33),...u32(c.crc),...u32(c.size),...u32(c.size),...u16(c.name.length),...u16(0),...u16(0),...u16(0),...u16(0),...u32(0),...u32(c.offset)]);
+  cdParts.push(h,c.name);cdSize+=h.length+c.name.length;
+ }
+ const end=new Uint8Array([...u32(0x06054b50),...u16(0),...u16(0),...u16(central.length),...u16(central.length),...u32(cdSize),...u32(cdStart),...u16(0)]);
+ const all=[...chunks,...cdParts,end];
+ const total=all.reduce((s,p)=>s+p.length,0);
+ const out=new Uint8Array(total);let p=0;
+ for(const part of all){out.set(part,p);p+=part.length}
+ return out;
+}
+function xlsxBlob(rows,sheetName){
+ const enc=new TextEncoder();
+ const H='<?xml version="1.0" encoding="UTF-8" standalone="yes"?>';
+ const ct=H+'<Types xmlns="http://schemas.openxmlformats.org/package/2006/content-types"><Default Extension="rels" ContentType="application/vnd.openxmlformats-package.relationships+xml"/><Default Extension="xml" ContentType="application/xml"/><Override PartName="/xl/workbook.xml" ContentType="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet.main+xml"/><Override PartName="/xl/worksheets/sheet1.xml" ContentType="application/vnd.openxmlformats-officedocument.spreadsheetml.worksheet+xml"/><Override PartName="/xl/styles.xml" ContentType="application/vnd.openxmlformats-officedocument.spreadsheetml.styles+xml"/></Types>';
+ const rels=H+'<Relationships xmlns="http://schemas.openxmlformats.org/package/2006/relationships"><Relationship Id="rId1" Type="http://schemas.openxmlformats.org/officeDocument/2006/relationships/officeDocument" Target="xl/workbook.xml"/></Relationships>';
+ const wb=H+'<workbook xmlns="http://schemas.openxmlformats.org/spreadsheetml/2006/main" xmlns:r="http://schemas.openxmlformats.org/officeDocument/2006/relationships"><sheets><sheet name="'+xlEsc(sheetName).slice(0,31)+'" sheetId="1" r:id="rId1"/></sheets></workbook>';
+ const wbRels=H+'<Relationships xmlns="http://schemas.openxmlformats.org/package/2006/relationships"><Relationship Id="rId1" Type="http://schemas.openxmlformats.org/officeDocument/2006/relationships/worksheet" Target="worksheets/sheet1.xml"/><Relationship Id="rId2" Type="http://schemas.openxmlformats.org/officeDocument/2006/relationships/styles" Target="styles.xml"/></Relationships>';
+ const styles=H+'<styleSheet xmlns="http://schemas.openxmlformats.org/spreadsheetml/2006/main"><fonts count="1"><font><sz val="11"/><name val="Calibri"/></font></fonts><fills count="2"><fill><patternFill patternType="none"/></fill><fill><patternFill patternType="gray125"/></fill></fills><borders count="1"><border><left/><right/><top/><bottom/><diagonal/></border></borders><cellStyleXfs count="1"><xf numFmtId="0" fontId="0" fillId="0" borderId="0"/></cellStyleXfs><cellXfs count="1"><xf numFmtId="0" fontId="0" fillId="0" borderId="0" xfId="0"/></cellXfs><cellStyles count="1"><cellStyle name="Normal" xfId="0" builtinId="0"/></cellStyles></styleSheet>';
+ const files=[
+  {name:'[Content_Types].xml',data:enc.encode(ct)},
+  {name:'_rels/.rels',data:enc.encode(rels)},
+  {name:'xl/workbook.xml',data:enc.encode(wb)},
+  {name:'xl/_rels/workbook.xml.rels',data:enc.encode(wbRels)},
+  {name:'xl/styles.xml',data:enc.encode(styles)},
+  {name:'xl/worksheets/sheet1.xml',data:enc.encode(xlSheet(rows))}
+ ];
+ return new Blob([xlZip(files)],{type:'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet'});
+}

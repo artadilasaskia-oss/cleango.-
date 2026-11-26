@@ -25,9 +25,9 @@
 - Instagram: @itscleango.laundry
 
 ## Halaman
-- [Beranda](https://cleango.id/): layanan, harga, cara pemesanan, dan FAQ
-- [Kebijakan Privasi](https://cleango.id/privasi.html)
-- [Syarat dan Ketentuan](https://cleango.id/syarat.html)
+- [Beranda](https://cleango-dun.vercel.app/): layanan, harga, cara pemesanan, dan FAQ
+- [Kebijakan Privasi](https://cleango-dun.vercel.app/privasi.html)
+- [Syarat dan Ketentuan](https://cleango-dun.vercel.app/syarat.html)
 
 ## FAQ
 - Berapa lama laundry selesai? Reguler 2 hari, express 6 jam setelah cucian ditimbang.

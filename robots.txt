@@ -43,4 +43,4 @@ Allow: /
 User-agent: Applebot-Extended
 Allow: /
 
-Sitemap: https://cleango.id/sitemap.xml
+Sitemap: https://cleango-dun.vercel.app/sitemap.xml
