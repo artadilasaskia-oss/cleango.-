@@ -1,0 +1,28 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 518 550" role="img" aria-label="Ilustrasi aplikasi peta CleanGo">
+  <defs>
+    <clipPath id="scr"><polygon points="134,22 370,80 344,454 36,444"/></clipPath>
+    <linearGradient id="pin" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0" stop-color="#3fb65a"/><stop offset="1" stop-color="#1f8a3c"/>
+    </linearGradient>
+  </defs>
+  <!-- bingkai HP -->
+  <polygon points="116,4 386,66 354,478 20,468" fill="#3b3f44" stroke="#3b3f44" stroke-width="14" stroke-linejoin="round"/>
+  <!-- layar peta -->
+  <polygon points="134,22 370,80 344,454 36,444" fill="#dfe9e4"/>
+  <g clip-path="url(#scr)" fill="none" stroke="#ffffff" stroke-linecap="round">
+    <path d="M40 70 L330 120" stroke-width="7"/>
+    <path d="M60 190 L340 225" stroke-width="7"/>
+    <path d="M50 300 L330 330" stroke-width="7"/>
+    <path d="M40 390 L330 415" stroke-width="6"/>
+    <path d="M205 20 L214 460" stroke-width="7"/>
+    <path d="M285 40 L266 460" stroke-width="6"/>
+    <path d="M120 30 L118 450" stroke-width="5"/>
+    <path d="M230 110 L120 300" stroke-width="4"/>
+    <path d="M300 180 L210 380" stroke-width="4"/>
+    <path d="M60 240 L140 120 L210 140" stroke-width="4"/>
+    <path d="M330 130 L260 300" stroke-width="4"/>
+  </g>
+  <!-- penanda lokasi -->
+  <path d="M138 252 C118 214 76 172 76 128 A62 62 0 1 1 200 128 C200 172 158 214 138 252 Z" fill="url(#pin)"/>
+  <circle cx="138" cy="128" r="22" fill="#ffffff"/>
+</svg>
